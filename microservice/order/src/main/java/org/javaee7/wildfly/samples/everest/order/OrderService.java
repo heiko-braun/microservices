@@ -5,8 +5,8 @@ import javax.annotation.PreDestroy;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
+
 import org.javaee7.wildfly.samples.everest.utils.WildFlyUtil;
-import org.javaee7.wildfly.samples.services.ConsulServices;
 import org.javaee7.wildfly.samples.services.ConsulServices;
 import org.javaee7.wildfly.samples.services.registration.ServiceRegistry;
 
@@ -16,23 +16,26 @@ import org.javaee7.wildfly.samples.services.registration.ServiceRegistry;
 @Startup
 @Singleton
 public class OrderService {
-    //    @Inject @FixedServices ServiceRegistry services;
-//    @Inject @SnoopServices ServiceRegistry services;
+
     @Inject @ConsulServices
     ServiceRegistry services;
 
-    //    private static final String endpointURI = "http://localhost:8080/order/resources/order";
-//    private final String endpointURI = "http://" + serverName + ":" + serverPort + "/order/resources/order";
-    private final String endpointURI = "http://" + WildFlyUtil.getHostName()+ ":" + WildFlyUtil.getHostPort() + "/order/resources/order";
+    @Inject
+    WildFlyUtil util;
+
     private static final String serviceName = "order";
 
     @PostConstruct
     public void registerService() {
-        services.registerService(serviceName, endpointURI);
+        services.registerService(serviceName, getEndpoint());
     }
 
     @PreDestroy
     public void unregisterService() {
-        services.unregisterService(serviceName, endpointURI);
+        services.unregisterService(serviceName, getEndpoint());
+    }
+
+    private String getEndpoint() {
+        return "http://" + util.getHostName()+ ":" + util.getHostPort() + "/order/resources/order";
     }
 }

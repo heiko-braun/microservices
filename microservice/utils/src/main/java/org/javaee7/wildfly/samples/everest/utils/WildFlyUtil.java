@@ -60,15 +60,15 @@ public class WildFlyUtil {
 
     }
 
-    public static String getHostName() {
+    public String getHostName() {
         return hostName;
     }
 
-    public static int getHostPort() {
+    public int getHostPort() {
         return hostPort;
     }
 
-    public static int getSecurePort() {
+    public int getSecurePort() {
         return hostSecurePort;
     }
 }

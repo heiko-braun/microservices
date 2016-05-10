@@ -1,18 +1,13 @@
 package org.javaee7.wildfly.samples.services.consul;
 
 import java.net.URL;
-import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import com.google.common.net.HostAndPort;
-import com.orbitz.consul.AgentClient;
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.HealthClient;
-import com.orbitz.consul.model.agent.ImmutableRegistration;
-import com.orbitz.consul.model.agent.Registration;
-import com.orbitz.consul.model.health.Service;
-import com.orbitz.consul.model.health.ServiceHealth;
+import com.ecwid.consul.v1.ConsulClient;
+import com.ecwid.consul.v1.agent.model.NewService;
+import com.ecwid.consul.v1.agent.model.Service;
 import org.javaee7.wildfly.samples.services.ConsulServices;
 import org.javaee7.wildfly.samples.services.registration.ServiceRegistry;
 
@@ -25,33 +20,36 @@ import org.javaee7.wildfly.samples.services.registration.ServiceRegistry;
 @ApplicationScoped
 public class ConsulRegistry implements ServiceRegistry {
     @Override
-    public void registerService(String serviceName, String uri) {
+    public void registerService(String name, String uri) {
         try {
 
             URL url = new URL(uri);
 
-            AgentClient client = getConsulClient();
+            ConsulClient client = getConsulClient();
 
-            Registration consulReg = ImmutableRegistration.builder()
-                    .address(url.getHost())
-                    .port(url.getPort())
-                    .id(serviceId(serviceName ,url.getHost(), url.getPort()))
-                    .name(serviceName)
-                    .check(com.orbitz.consul.model.agent.Registration.RegCheck.ttl(3L))
-                    .build();
+            // register new service
+            NewService newService = new NewService();
+            newService.setId(serviceId(name, url.getHost(), url.getPort()));
+            newService.setName(name);
+            newService.setAddress(url.getHost());
+            newService.setPort(url.getPort());
 
-            client.register(consulReg);
+            NewService.Check serviceCheck = new NewService.Check();
+            serviceCheck.setHttp(uri);
+            serviceCheck.setInterval("10s");
+            newService.setCheck(serviceCheck);
+
+            client.agentServiceRegister(newService);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private AgentClient getConsulClient() {
+    private ConsulClient getConsulClient() {
         String consulHost = System.getProperty("consul.host", "192.168.99.100"); // DOCKER
-        HostAndPort hostAndPort = HostAndPort.fromParts(consulHost, 8500);
-        Consul consul = Consul.builder().withHostAndPort(hostAndPort).build();
-        return consul.agentClient();
+        ConsulClient client = new ConsulClient(consulHost);
+        return client;
     }
 
 
@@ -61,30 +59,30 @@ public class ConsulRegistry implements ServiceRegistry {
 
     @Override
     public void unregisterService(String name, String uri) {
-        try {
-            URL url = new URL(uri);
-            AgentClient client = getConsulClient();
-            client.deregister(serviceId(name, url.getHost(), url.getPort()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
     @Override
     public String discoverServiceURI(String name) {
 
-        Consul consul = Consul.builder().build(); // connect to Consul on localhost
-        HealthClient healthClient = consul.healthClient();
+        ConsulClient client = getConsulClient();
+        Map<String, Service> agentServices = client.getAgentServices().getValue();
 
-        List<ServiceHealth> nodes = healthClient.getHealthyServiceInstances(name).getResponse();
+        Service match = null;
 
-        if(nodes.isEmpty()) {
-            throw new RuntimeException("No healthy service found for "+name);
+        for (String key : agentServices.keySet()) {
+            if(key.equals(name)) {
+                match = agentServices.get(key);
+                break;
+            }
         }
 
+        if(null==match)
+            throw new RuntimeException("Service "+name+" cannot be found!");
+
+
         try {
-            Service first = nodes.get(0).getService();
-            URL url = new URL("http://"+first.getAddress()+":"+first.getPort());
+            URL url = new URL("http://"+match.getAddress()+":"+match.getPort());
             return url.toExternalForm();
         } catch (Exception e) {
             throw new RuntimeException(e);

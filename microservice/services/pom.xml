@@ -13,10 +13,9 @@
     <name>services</name>
     
     <dependencies>
-
         <dependency>
-            <groupId>com.orbitz.consul</groupId>
-            <artifactId>consul-client</artifactId>
+          <groupId>com.ecwid.consul</groupId>
+          <artifactId>consul-api</artifactId>
         </dependency>
     </dependencies>
         

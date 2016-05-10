@@ -15,23 +15,25 @@ import org.javaee7.wildfly.samples.services.registration.ServiceRegistry;
 @Startup
 @Singleton
 public class UserService {
-//    @Inject @FixedServices ServiceRegistry services;
-//    @Inject @SnoopServices ServiceRegistry services;
+
     @Inject @ConsulServices ServiceRegistry services;
 
-//    private static final String endpointURI = "http://localhost:8080/user/resources/user";
-//    private final String endpointURI = "http://" + serverName + ":" + serverPort + "/user/resources/user";
-    private final String endpointURI = "http://" + WildFlyUtil.getHostName()+ ":" + WildFlyUtil.getHostPort() + "/user/resources/user";
+    @Inject
+    WildFlyUtil util;
 
     private static final String serviceName = "user";
     
     @PostConstruct
     public void registerService() {
-        services.registerService(serviceName, endpointURI);
+        services.registerService(serviceName, getEndpoint());
     }
     
     @PreDestroy
     public void unregisterService() {
-        services.unregisterService(serviceName, endpointURI);
+        services.unregisterService(serviceName, getEndpoint());
+    }
+
+    private String getEndpoint() {
+        return "http://" + util.getHostName()+ ":" + util.getHostPort() + "/user/resources/user";
     }
 }
