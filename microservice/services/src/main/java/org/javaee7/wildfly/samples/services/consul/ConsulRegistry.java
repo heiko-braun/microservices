@@ -19,6 +19,7 @@ import org.javaee7.wildfly.samples.services.registration.ServiceRegistry;
 @ConsulServices
 @ApplicationScoped
 public class ConsulRegistry implements ServiceRegistry {
+
     @Override
     public void registerService(String name, String uri) {
         try {
@@ -27,7 +28,6 @@ public class ConsulRegistry implements ServiceRegistry {
 
             ConsulClient client = getConsulClient();
 
-            // register new service
             NewService newService = new NewService();
             newService.setId(serviceId(name, url.getHost(), url.getPort()));
             newService.setName(name);
@@ -36,7 +36,7 @@ public class ConsulRegistry implements ServiceRegistry {
 
             NewService.Check serviceCheck = new NewService.Check();
             serviceCheck.setHttp(uri);
-            serviceCheck.setInterval("10s");
+            serviceCheck.setInterval("30s");
             newService.setCheck(serviceCheck);
 
             client.agentServiceRegister(newService);
@@ -70,15 +70,15 @@ public class ConsulRegistry implements ServiceRegistry {
 
         Service match = null;
 
-        for (String key : agentServices.keySet()) {
-            if(key.equals(name)) {
-                match = agentServices.get(key);
+        for (Map.Entry<String, Service> entry : agentServices.entrySet()) {
+            if(entry.getValue().getService().equals(name)) {
+                match = entry.getValue();
                 break;
             }
         }
 
         if(null==match)
-            throw new RuntimeException("Service "+name+" cannot be found!");
+            throw new RuntimeException("Service '"+name+"' cannot be found!");
 
 
         try {

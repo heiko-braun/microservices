@@ -1,8 +1,10 @@
 package org.javaee7.wildfly.samples.services.discovery;
 
 import java.net.URI;
+
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.UriBuilder;
 
 /**
  * @author arungupta
@@ -23,7 +25,11 @@ public abstract class ServiceDiscovery {
         if (null == userService) {
             userService = ClientBuilder
                     .newClient()
-                    .target(URI.create(getUserServiceURI()));
+                    .target(
+                            UriBuilder.fromUri(URI.create(getUserServiceURI()))
+                                    .path("/user/resources/user")
+                                    .build()
+                    );
         }
 
         return userService;
@@ -33,10 +39,14 @@ public abstract class ServiceDiscovery {
         if (null == catalogService) {
             catalogService = ClientBuilder
                     .newClient()
-                    .target(URI.create(getCatalogServiceURI()));
+                    .target(
+                            UriBuilder.fromUri(URI.create(getCatalogServiceURI()))
+                                    .path("/catalog/resources/catalog")
+                                    .build()
+                    );
 
         }
-        
+
         return catalogService;
     }
 
@@ -44,7 +54,11 @@ public abstract class ServiceDiscovery {
         if (null == orderService) {
             orderService = ClientBuilder
                     .newClient()
-                    .target(URI.create(getOrderServiceURI()));
+                    .target(
+                            UriBuilder.fromUri(URI.create(getOrderServiceURI()))
+                                    .path("/order/resources/order")
+                                    .build()
+                    );
 
         }
 
