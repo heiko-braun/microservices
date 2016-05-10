@@ -2,6 +2,7 @@ package org.javaee7.wildfly.samples.everest.order;
 
 import java.io.Serializable;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
