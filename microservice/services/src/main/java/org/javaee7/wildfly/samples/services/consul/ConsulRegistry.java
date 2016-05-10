@@ -3,6 +3,8 @@ package org.javaee7.wildfly.samples.services.consul;
 import java.net.URL;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
@@ -11,12 +13,16 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.health.Service;
 import com.orbitz.consul.model.health.ServiceHealth;
+import org.javaee7.wildfly.samples.services.ConsulServices;
 import org.javaee7.wildfly.samples.services.registration.ServiceRegistry;
 
 /**
  * @author Heiko Braun
  * @since 10/05/16
  */
+
+@ConsulServices
+@ApplicationScoped
 public class ConsulRegistry implements ServiceRegistry {
     @Override
     public void registerService(String serviceName, String uri) {
@@ -42,7 +48,7 @@ public class ConsulRegistry implements ServiceRegistry {
     }
 
     private AgentClient getConsulClient() {
-        String consulHost = System.getProperty("consul.host", "localhost");
+        String consulHost = System.getProperty("consul.host", "192.168.99.100"); // DOCKER
         HostAndPort hostAndPort = HostAndPort.fromParts(consulHost, 8500);
         Consul consul = Consul.builder().withHostAndPort(hostAndPort).build();
         return consul.agentClient();
