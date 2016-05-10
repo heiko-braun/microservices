@@ -66,12 +66,12 @@ public class OrderREST {
     @Path("{id}")
     @Produces({"application/xml", "application/json"})
     public Order find(@PathParam("id") Integer id) {
-        return em.createNamedQuery("Uzer.findById", Order.class).setParameter("id", id).getSingleResult();
+        return em.createNamedQuery("Order.findById", Order.class).setParameter("id", id).getSingleResult();
     }
 
     @GET
     @Produces({"application/xml", "application/json"})
     public List<Order> findAll() {
-        return em.createNamedQuery("Uzer.findAll", Order.class).getResultList();
+        return em.createNamedQuery("Order.findAll", Order.class).getResultList();
     }
 }
