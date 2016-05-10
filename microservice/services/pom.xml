@@ -22,6 +22,11 @@
             <groupId>eu.agilejava</groupId>
             <artifactId>snoop-client</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.orbitz.consul</groupId>
+            <artifactId>consul-client</artifactId>
+        </dependency>
     </dependencies>
         
     <build>
