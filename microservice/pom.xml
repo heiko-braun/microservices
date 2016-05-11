@@ -168,7 +168,7 @@
                 <plugin>
                     <groupId>org.wildfly.plugins</groupId>
                     <artifactId>wildfly-maven-plugin</artifactId>
-                    <version>1.1.0.Alpha2</version>
+                    <version>1.1.0.Alpha8</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -294,7 +294,7 @@
                                         <artifactItem>
                                             <groupId>org.wildfly</groupId>
                                             <artifactId>wildfly-dist</artifactId>
-                                            <version>8.2.0.Final</version>
+                                            <version>10.0.0.Final</version>
                                             <type>zip</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>target</outputDirectory>
@@ -316,8 +316,8 @@
                             </includes>
                             <systemPropertyVariables>
                                 <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                                <jboss.home>${project.basedir}/target/wildfly-8.2.0.Final</jboss.home>
-                                <module.path>${project.basedir}/target/wildfly-8.2.0.Final/modules</module.path>
+                                <jboss.home>${project.basedir}/target/wildfly-10.0.0.Final</jboss.home>
+                                <module.path>${project.basedir}/target/wildfly-10.0.0.Final/modules</module.path>
                             </systemPropertyVariables>
                             <redirectTestOutputToFile>false</redirectTestOutputToFile>
                         </configuration>
