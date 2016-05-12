@@ -20,15 +20,11 @@
 
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
-      <artifactId>jaxrs</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.wildfly.swarm</groupId>
       <artifactId>jaxrs-jaxb</artifactId>
     </dependency>
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
-      <artifactId>cdi</artifactId>
+      <artifactId>jaxrs-cdi</artifactId>
     </dependency>
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
