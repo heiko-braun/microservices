@@ -19,6 +19,7 @@ public class Main {
         JAXRSArchive archive = ShrinkWrap.create(JAXRSArchive.class);
         archive.addPackage(Main.class.getPackage());
         archive.addAsWebInfResource(new ClassLoaderAsset("META-INF/persistence.xml", Main.class.getClassLoader()), "classes/META-INF/persistence.xml");
+        archive.addAllDependencies();
 
         swarm.deploy(archive);
 
