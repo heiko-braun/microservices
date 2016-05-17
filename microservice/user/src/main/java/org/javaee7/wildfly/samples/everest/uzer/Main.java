@@ -4,6 +4,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
 import org.wildfly.swarm.Swarm;
 import org.wildfly.swarm.jaxrs.JAXRSArchive;
+import org.wildfly.swarm.topology.TopologyArchive;
 
 /**
  * @author Heiko Braun
@@ -19,6 +20,9 @@ public class Main {
         archive.addPackage(Main.class.getPackage());
         archive.addAsWebInfResource(new ClassLoaderAsset("META-INF/persistence.xml", Main.class.getClassLoader()), "classes/META-INF/persistence.xml");
         archive.addAllDependencies();
+
+        // advertise service
+        archive.as(TopologyArchive.class).advertise("user");
 
         swarm.deploy(archive);
 

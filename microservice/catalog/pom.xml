@@ -34,12 +34,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.javaee7.wildfly.samples</groupId>
-            <artifactId>services</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.javaee7.wildfly.samples</groupId>
-            <artifactId>utils</artifactId>
+            <groupId>org.wildfly.swarm</groupId>
+            <artifactId>topology-consul</artifactId>
         </dependency>
 
     </dependencies>
@@ -54,6 +50,7 @@
                 <configuration>
                     <mainClass>org.javaee7.wildfly.samples.everest.catalog.Main</mainClass>
                     <properties>
+                        <swarm.consul.url>http://192.168.99.100:8500</swarm.consul.url>
                         <swarm.context.path>${build.finalName}</swarm.context.path>
                         <swarm.port.offset>100</swarm.port.offset>
                     </properties>
