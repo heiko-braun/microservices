@@ -52,9 +52,9 @@
                 <configuration>
                     <mainClass>org.javaee7.wildfly.samples.everest.uzer.Main</mainClass>
                     <properties>
-                        <swarm.consul.url>http://192.168.99.100:8500</swarm.consul.url>
+                        <!--<swarm.consul.url>http://192.168.99.100:8500</swarm.consul.url>-->
                         <swarm.context.path>${build.finalName}</swarm.context.path>
-                        <swarm.port.offset>50</swarm.port.offset>
+                        <!--<swarm.port.offset>50</swarm.port.offset>-->
                     </properties>
                 </configuration>
                 <executions>
