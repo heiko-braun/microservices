@@ -1,5 +1,7 @@
 package org.javaee7.wildfly.samples.everest.catalog;
 
+import java.net.URL;
+
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
 import org.wildfly.swarm.Swarm;
@@ -13,7 +15,11 @@ import org.wildfly.swarm.topology.TopologyArchive;
 public class Main {
     public static void main(String[] args) throws Exception {
 
-        Swarm swarm = new Swarm();
+        URL stageConfig = Main.class.getClassLoader().getResource("project-stages.yml");
+
+        Swarm swarm = new Swarm()
+                .withStageConfig(stageConfig);
+
         swarm.start();
 
         JAXRSArchive archive = ShrinkWrap.create(JAXRSArchive.class);
@@ -23,7 +29,11 @@ public class Main {
         archive.addAllDependencies();
 
         // advertise service
-        archive.as(TopologyArchive.class).advertise("catalog");
+        archive.as(TopologyArchive.class).advertise(
+                swarm.stageConfig()
+                        .resolve("service.catalog.service-name")
+                        .getValue()
+        );
 
         swarm.deploy(archive);
 
