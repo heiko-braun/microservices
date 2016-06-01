@@ -31,6 +31,6 @@ public class ConsulDiscovery extends ServiceDiscovery {
 
     @Override
     public String getOrderServiceURI() {
-        return services.discoverServiceURI("order");
+        return "http://localhost:4140";//services.discoverServiceURI("order");
     }
 }
