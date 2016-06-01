@@ -10,8 +10,6 @@ import javax.inject.Named;
 import org.javaee7.wildfly.samples.everest.cart.Cart;
 import org.javaee7.wildfly.samples.everest.cart.CartItem;
 import org.javaee7.wildfly.samples.services.discovery.ServiceDiscovery;
-import rx.Observable;
-import rx.Observer;
 
 /**
  * @author arungupta
@@ -43,32 +41,13 @@ public class OrderBean implements Serializable {
         });
 
         try {
-            // This command is essentially a blocking command but provides an Observable facade
-            Observable<String> observable = new OrderCommand(services, order.asJson()).toObservable();
-            observable.subscribe(
-                    new Observer<String>() {
+            OrderCommand.Result result = new OrderCommand(services, order.asJson()).execute();
+            if(result.isSuccessful())
+                cart.clearCart();
 
-                        @Override
-                        public void onCompleted() {
-                            cart.clearCart();
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            status = e.getMessage();
-                        }
-
-                        @Override
-                        public void onNext(String v) {
-                            status = v;
-                        }
-
-                    }
-            );
+            status = result.getStatus();
 
         } catch (Exception e) {
-            e.printStackTrace();
             status = e.getLocalizedMessage();
         }
     }
