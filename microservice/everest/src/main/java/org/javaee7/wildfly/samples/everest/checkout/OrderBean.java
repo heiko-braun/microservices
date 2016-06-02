@@ -7,6 +7,7 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import org.javaee7.wildfly.samples.everest.cart.Cart;
 import org.javaee7.wildfly.samples.everest.cart.CartItem;
 import org.javaee7.wildfly.samples.services.discovery.ServiceDiscovery;
@@ -41,11 +42,20 @@ public class OrderBean implements Serializable {
         });
 
         try {
-            OrderCommand.Result result = new OrderCommand(services, order.asJson()).execute();
-            if(result.isSuccessful())
-                cart.clearCart();
 
-            status = result.getStatus();
+            // the request context thread locals
+            HystrixRequestContext context = HystrixRequestContext.initializeContext();
+
+            try {
+                OrderCommand.Result result = new OrderCommand(services, order.asJson()).execute();
+                if(result.isSuccessful())
+                    cart.clearCart();
+
+                status = result.getStatus();
+
+            } finally {
+                context.shutdown();
+            }
 
         } catch (Exception e) {
             status = e.getLocalizedMessage();

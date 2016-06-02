@@ -18,15 +18,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-core</artifactId>
-            <version>1.5.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-metrics-event-stream</artifactId>
-            <version>1.4.10</version>
+            <groupId>org.wildfly.swarm</groupId>
+            <artifactId>hystrix</artifactId>
         </dependency>
 
         <dependency>
