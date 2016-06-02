@@ -1,8 +1,11 @@
 package org.javaee7.wildfly.samples.everest;
 
+import java.net.URL;
+
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
 import org.wildfly.swarm.Swarm;
+import org.wildfly.swarm.topology.TopologyArchive;
 import org.wildfly.swarm.undertow.WARArchive;
 
 /**
@@ -14,7 +17,11 @@ public class Main {
     static final String[] webResources = {"cart", "catalog", "catalog-item", "checkout", "confirm", "index", "user", "user-status"};
 
     public static void main(String[] args) throws Exception {
-        Swarm swarm = new Swarm();
+
+        URL stageConfig = Main.class.getClassLoader().getResource("project-stages.yml");
+
+        Swarm swarm = new Swarm()
+                .withStageConfig(stageConfig);
 
         WARArchive deployment = ShrinkWrap.create(WARArchive.class );
         deployment.addPackages(true, Main.class.getPackage());
@@ -31,6 +38,13 @@ public class Main {
 
 
         deployment.addAllDependencies();
+
+        // advertise service
+        deployment.as(TopologyArchive.class).advertise(
+                swarm.stageConfig()
+                        .resolve("service.web.service-name")
+                        .getValue()
+        );
 
         swarm.start().deploy(deployment);
     }
