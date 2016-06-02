@@ -13,6 +13,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import org.apache.http.util.EntityUtils;
 import org.javaee7.wildfly.samples.services.discovery.ServiceDiscovery;
 
