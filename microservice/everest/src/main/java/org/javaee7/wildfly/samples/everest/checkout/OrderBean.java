@@ -2,15 +2,24 @@ package org.javaee7.wildfly.samples.everest.checkout;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
+import com.netflix.ribbon.ClientOptions;
+import com.netflix.ribbon.Ribbon;
+import com.netflix.ribbon.http.HttpRequestTemplate;
+import com.netflix.ribbon.http.HttpResourceGroup;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.javaee7.wildfly.samples.everest.cart.Cart;
 import org.javaee7.wildfly.samples.everest.cart.CartItem;
 import org.javaee7.wildfly.samples.services.discovery.ServiceDiscovery;
+import rx.Observable;
+import rx.Observer;
 
 /**
  * @author arungupta
@@ -47,15 +56,46 @@ public class OrderBean implements Serializable {
             HystrixRequestContext context = HystrixRequestContext.initializeContext();
 
             try {
-                OrderCommand.Result result = new OrderCommand(services, order.asJson()).execute();
-                if(result.isSuccessful())
-                    cart.clearCart();
+                HttpResourceGroup httpResourceGroup = Ribbon.createHttpResourceGroup(
+                        "order", // the name of the service in the registry
+                        ClientOptions.create()
+                                .withMaxAutoRetriesNextServer(3)
+                );
 
-                status = result.getStatus();
+                HttpRequestTemplate<ByteBuf> submitOrderTemplate = httpResourceGroup.newTemplateBuilder("submitOrder", ByteBuf.class)
+                        .withMethod("POST")
+                        .withUriTemplate("/order/resources/order")
+                        /*.withFallbackProvider(new RecommendationServiceFallbackHandler())*/
+                        .build();
+
+                Observable<ByteBuf> obs = submitOrderTemplate.requestBuilder()
+                        .withContent(Observable.just(Unpooled.wrappedBuffer(order.asJsonString().getBytes())))
+                        .build()
+                        .toObservable();
+
+                obs.subscribe(new Observer<ByteBuf>() {
+                    @Override
+                    public void onCompleted() {
+                        status = "Order processed successfully";
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                        status = "Failed to process order";
+                    }
+
+                    @Override
+                    public void onNext(ByteBuf byteBuf) {
+                        // ignore
+                    }
+                });
 
             } finally {
                 context.shutdown();
             }
+
+            cart.clearCart();      // bummer, if the req fails everything is lost
 
         } catch (Exception e) {
             status = e.getLocalizedMessage();
