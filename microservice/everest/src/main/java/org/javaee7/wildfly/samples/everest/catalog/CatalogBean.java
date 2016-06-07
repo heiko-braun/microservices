@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -18,11 +19,13 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
+import com.netflix.hystrix.HystrixInvokableInfo;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import com.netflix.ribbon.ClientOptions;
 import com.netflix.ribbon.Ribbon;
 import com.netflix.ribbon.http.HttpRequestTemplate;
 import com.netflix.ribbon.http.HttpResourceGroup;
+import com.netflix.ribbon.hystrix.FallbackHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.javaee7.wildfly.samples.everest.checkout.OrderItem;
@@ -70,7 +73,13 @@ public class CatalogBean implements Serializable {
                 HttpRequestTemplate<ByteBuf> template = httpResourceGroup.newTemplateBuilder("loadCatalog", ByteBuf.class)
                         .withMethod("GET")
                         .withUriTemplate("/catalog/resources/catalog")
-                        /*.withFallbackProvider(new RecommendationServiceFallbackHandler())*/
+                        .withFallbackProvider(new FallbackHandler() {
+                            @Override
+                            public Observable getFallback(HystrixInvokableInfo hystrixInvokableInfo, Map map) {
+                                System.out.println("<< Serving fallback result list >>");
+                                return Observable.just(cachedResults);
+                            }
+                        })
                         .build();
 
                 BlockingObservable<ByteBuf> obs = template.requestBuilder()
@@ -78,14 +87,18 @@ public class CatalogBean implements Serializable {
                         .build()
                         .observe().toBlocking();
 
-                String payload = obs.last().toString(Charset.forName("UTF-8"));
-                System.out.println(payload);
+                ByteBuf responseBuffer = obs.last().copy().retain();
+                if(responseBuffer.capacity()>0) {
+                    String payload = responseBuffer.toString(Charset.forName("UTF-8"));
+                    cachedResults = responseBuffer;
 
-                JAXBContext jc = JAXBContext.newInstance(CatalogItem.class, Catalog.class);
-                Unmarshaller u = jc.createUnmarshaller();
-                Catalog catalog = (Catalog) u.unmarshal( new StreamSource(new StringReader(payload) ) );
+                    JAXBContext jc = JAXBContext.newInstance(CatalogItem.class, Catalog.class);
+                    Unmarshaller u = jc.createUnmarshaller();
+                    Catalog catalog = (Catalog) u.unmarshal(new StreamSource(new StringReader(payload)));
 
-                result = catalog.getCatalogItems();
+
+                    result = catalog.getCatalogItems();
+                }
 
             } finally {
                 context.shutdown();
@@ -119,4 +132,6 @@ public class CatalogBean implements Serializable {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    private ByteBuf cachedResults = Unpooled.buffer();
 }
