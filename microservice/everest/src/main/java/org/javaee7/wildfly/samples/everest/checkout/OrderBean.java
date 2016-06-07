@@ -80,6 +80,8 @@ public class OrderBean implements Serializable {
 
                 status = "Order successful, order number: " + jsonResponse.get("orderId");
 
+                cart.clearCart();
+
             } finally {
                 context.shutdown();
             }
