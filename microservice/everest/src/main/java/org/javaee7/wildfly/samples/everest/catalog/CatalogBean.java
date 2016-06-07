@@ -2,6 +2,10 @@ package org.javaee7.wildfly.samples.everest.catalog;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
+
 import javax.enterprise.context.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -10,7 +14,21 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
+import com.netflix.ribbon.ClientOptions;
+import com.netflix.ribbon.Ribbon;
+import com.netflix.ribbon.http.HttpRequestTemplate;
+import com.netflix.ribbon.http.HttpResourceGroup;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.javaee7.wildfly.samples.everest.checkout.OrderItem;
 import org.javaee7.wildfly.samples.services.discovery.ServiceDiscovery;
+import rx.Observable;
+import rx.observables.BlockingObservable;
 
 /**
  * @author arungupta
@@ -35,8 +53,50 @@ public class CatalogBean implements Serializable {
             status = statusInfo.getReasonPhrase();
     }
     
-    public CatalogItem[] getAllItems() {
-        return services.getCatalogService().register(CatalogItem.class).request().get(CatalogItem[].class);
+    public List<CatalogItem> getAllItems() {
+
+        List<CatalogItem> result = Collections.EMPTY_LIST;
+
+        try {
+            // the request context thread locals
+            HystrixRequestContext context = HystrixRequestContext.initializeContext();
+
+            try {
+                HttpResourceGroup httpResourceGroup = Ribbon.createHttpResourceGroup(
+                        "catalog", // the name of the service in the registry
+                        ClientOptions.create().withMaxAutoRetriesNextServer(3)
+                );
+
+                HttpRequestTemplate<ByteBuf> template = httpResourceGroup.newTemplateBuilder("loadCatalog", ByteBuf.class)
+                        .withMethod("GET")
+                        .withUriTemplate("/catalog/resources/catalog")
+                        /*.withFallbackProvider(new RecommendationServiceFallbackHandler())*/
+                        .build();
+
+                BlockingObservable<ByteBuf> obs = template.requestBuilder()
+                        .withHeader("Content-Type", "text/xml")
+                        .build()
+                        .observe().toBlocking();
+
+                String payload = obs.last().toString(Charset.forName("UTF-8"));
+                System.out.println(payload);
+
+                JAXBContext jc = JAXBContext.newInstance(CatalogItem.class, Catalog.class);
+                Unmarshaller u = jc.createUnmarshaller();
+                Catalog catalog = (Catalog) u.unmarshal( new StreamSource(new StringReader(payload) ) );
+
+                result = catalog.getCatalogItems();
+
+            } finally {
+                context.shutdown();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            status = e.getLocalizedMessage();
+        }
+
+        return result;
     }
 
     public String catalogServiceEndpoint() {
