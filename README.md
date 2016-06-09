@@ -60,6 +60,12 @@ The source code for the lab will be provided on Friday. If you have any question
 
 https://groups.google.com/forum/?nomobile=true#!forum/wildfly-swarm
 
+### Workshop Activities
+
+The workshop activities are described here:
+
+https://goo.gl/qtUD4V
+
 ## Reading on microservices concepts
 
 We will cover general microservice concepts during the lab to some extend, but cannot fully cover the wide range of concepts and ideas that relate to it without sacrificing time for practical activities.
