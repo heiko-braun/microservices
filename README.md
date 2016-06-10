@@ -53,16 +53,9 @@ mvn clean install
 cd ../jpa-jaxrs-cdi/
 mvn clean install
 ```
+### Workshop Instructions
 
-## The lab sources
-
-The source code for the lab will be provided on Friday. If you have any questions upfront, don't hesitate to contact us here:
-
-https://groups.google.com/forum/?nomobile=true#!forum/wildfly-swarm
-
-### Workshop Activities
-
-The workshop activities are described here:
+The workshop activities are described in the following document: 
 
 https://goo.gl/qtUD4V
 
