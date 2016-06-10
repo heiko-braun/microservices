@@ -41,17 +41,6 @@ cd microservice
 mvn install
 ```
 
-2) Build the JPA/JAX-RS examples
-
-This may take some time to complete. Make sure you run it on a decent broadband connection.
-
-```
-cd swarm-examples-1.0.0.CR1
-cd base
-mvn clean install
-cd ../jpa-jaxrs-cdi/
-mvn clean install
-```
 ### Workshop Instructions
 
 The workshop activities are described in the following document:
