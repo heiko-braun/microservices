@@ -34,6 +34,7 @@
             <plugin>
                 <groupId>org.wildfly.swarm</groupId>
                 <artifactId>wildfly-swarm-plugin</artifactId>
+                <version>${version.wildfly-swarm}</version>
                 <configuration>
                     <properties>
                         <swarm.context.path>${build.finalName}</swarm.context.path>
