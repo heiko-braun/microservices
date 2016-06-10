@@ -32,14 +32,13 @@ We are running on a shared WIFI at the lab location, so preparing your local mav
 
 The most simple way to prepare your local repository, is to build one of the WildFly Swarm examples:
 
-1) Checkout the WildFly Swarm examples
+1) Checkout this repository
 
-The following commands will checkout the examples tagged '1.0.0.CR1'.
+Move to the microservice folder and build the project once to warm up your repo:
 
 ```
-git clone https://github.com/wildfly-swarm/wildfly-swarm-examples.git
-
-git checkout tags/1.0.0.CR1 -b swarm-examples-1.0.0.CR1
+cd microservice
+mvn install
 ```
 
 2) Build the JPA/JAX-RS examples
@@ -55,7 +54,7 @@ mvn clean install
 ```
 ### Workshop Instructions
 
-The workshop activities are described in the following document: 
+The workshop activities are described in the following document:
 
 https://goo.gl/qtUD4V
 
