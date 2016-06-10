@@ -47,6 +47,7 @@
             <plugin>
                 <groupId>org.wildfly.swarm</groupId>
                 <artifactId>wildfly-swarm-plugin</artifactId>
+		<version>${version.wildfly-swarm}</version>
                 <configuration>
                     <mainClass>org.javaee7.wildfly.samples.everest.catalog.Main</mainClass>
                     <properties>
