@@ -5,6 +5,7 @@ import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
 import org.wildfly.swarm.Swarm;
 import org.wildfly.swarm.jaxrs.JAXRSArchive;
 import org.wildfly.swarm.topology.TopologyArchive;
+import org.wildfly.swarm.topology.consul.ConsulTopologyFraction;
 
 /**
  * @author Heiko Braun
@@ -14,7 +15,13 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         Swarm swarm = new Swarm();
+
+        swarm.fraction(new ConsulTopologyFraction(
+                System.getProperty("swarm.consul.url", "http://localhost:8500/")
+        ));
+
         swarm.start();
+
 
         JAXRSArchive archive = ShrinkWrap.create(JAXRSArchive.class);
         archive.addPackage(Main.class.getPackage());
